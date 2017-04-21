@@ -1,6 +1,5 @@
 import Ember from 'ember';
 import { test, module } from 'qunit';
-import patchMiddleware from '../helpers/patch-middleware';
 import startApp from '../helpers/start-app';
 
 var application;
@@ -8,12 +7,11 @@ var application;
 module('Acceptance | middleware configuration test', {
   beforeEach() {
     window.middlewareArgs = null;
-    patchMiddleware();
     application = startApp();
   },
   afterEach() {
     Ember.run(application, 'destroy');
-    window.middlewareArgs = null;
+    window.middlewareArgs = undefined;
   }
 });
 
