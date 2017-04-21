@@ -1,17 +1,18 @@
 import Ember from 'ember';
 import { test, module } from 'qunit';
+import { applyPatch, revertPatch } from '../helpers/patch-middleware';
 import startApp from '../helpers/start-app';
 
 var application;
 
 module('Acceptance | middleware configuration test', {
   beforeEach() {
-    window.middlewareArgs = null;
+    applyPatch();
     application = startApp();
   },
   afterEach() {
     Ember.run(application, 'destroy');
-    window.middlewareArgs = undefined;
+    revertPatch();
   }
 });
 
