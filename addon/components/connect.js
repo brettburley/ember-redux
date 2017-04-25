@@ -61,6 +61,9 @@ function getAttrs(context) {
   return getProperties(context, attrKeys);
 }
 
+const HANDLE_CHANGE = '__er_handle_change__';
+const UNSUBSCRIBE = '__er_unsubscribe__';
+
 export default (stateToComputed, dispatchToActions) => {
   return Component => {
     return Component.extend({
@@ -93,13 +96,8 @@ export default (stateToComputed, dispatchToActions) => {
             }
           };
 
-          const unsubscribe = redux.subscribe(handleChange);
-
-          this.on('didUpdateAttrs', handleChange);
-          this.one('willDestroyElement', () => {
-            this.off('didReceiveAttrs', handleChange);
-            unsubscribe();
-          });
+          this[HANDLE_CHANGE] = handleChange;
+          this[UNSUBSCRIBE] = redux.subscribe(handleChange);
         }
 
         if (typeof dispatchToActions === 'function') {
@@ -114,6 +112,21 @@ export default (stateToComputed, dispatchToActions) => {
         }
 
         this._super(...arguments);
+      },
+
+      didUpdateAttrs() {
+        this._super(...arguments);
+        if (this[HANDLE_CHANGE]) {
+          this[HANDLE_CHANGE]();
+        }
+      },
+
+      willDestroy() {
+        this._super(...arguments);
+        if (this[UNSUBSCRIBE]) {
+          this[UNSUBSCRIBE]();
+          this[UNSUBSCRIBE] = null;
+        }
       }
     });
   };
